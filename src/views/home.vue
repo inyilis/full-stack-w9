@@ -159,10 +159,10 @@
                   </p>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="col btn btn-secondary" data-dismiss="modal" @click="addCheckout(allCart, calculate, cashier, userName) & cartNull()">
+                  <button type="button" class="col btn btn-secondary" data-dismiss="modal" @click="addCheckout(allCart, calculate, cashier, getAuth.name) & cartNull()">
                     Print
                   </button>
-                  <button type="button" class="col btn btn-primary" data-dismiss="modal" @click="addCheckout(allCart, calculate, cashier, userName) & cartNull()">
+                  <button type="button" class="col btn btn-primary" data-dismiss="modal" @click="addCheckout(allCart, calculate, cashier, getAuth.name) & cartNull()">
                     Send Email
                   </button>
                 </div>
