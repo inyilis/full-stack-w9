@@ -1,8 +1,6 @@
-let saveCart = localStorage.getItem('cart');
-
 const cart = {
   state: {
-    cart: saveCart ? JSON.parse(saveCart) : [],
+    cart: [],
   },
   getters: {
     allCart: (state) => {
@@ -40,7 +38,6 @@ const cart = {
       }else{
         commit('addCart', {product: data, qty: 1});
       }
-      commit('saveCarts');
     },
     delCart({commit, state}, idCart) {
       if(state.cart[idCart].qty > 1){
@@ -48,11 +45,9 @@ const cart = {
       }else{
         commit('delCart', idCart);
       }
-      commit('saveCarts');
     },
     cartNull({commit}) {
       commit('cartNull');
-      commit('saveCarts');
     },
   },
   mutations: {
@@ -70,9 +65,6 @@ const cart = {
     },
     cartNull(state){
       state.cart = []
-    },
-    saveCarts(state){
-      localStorage.setItem('cart', JSON.stringify(state.cart));
     },
   },
 }

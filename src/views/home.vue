@@ -1,12 +1,12 @@
 <template>
-  <div v-if="role == 'admin' || role == 'user'" class="row">
+  <div v-if="getAuth.role == 'admin' || getAuth.role == 'user'" class="row">
     <div class="col-sm-12 col-xl-9">
       <header class="row sticky-top bg-white py-4 shadow">
         <div class="col-3 col-md-1">
           <Navbar />
         </div>
         <div class="col-9 col-md-7 d-flex justify-content-between">
-          <h5 class="mt-2"> Hi, {{ userName }}</h5>
+          <h5 class="mt-2"> Hi, {{ getAuth.name }}</h5>
           <h2 class="font-weight-bold">Food Items</h2>
           <h1></h1>
         </div>
@@ -198,7 +198,7 @@ import Cart from "../components/cart.vue";
 import Sorted from "../components/filter.vue";
 import axios from "axios";
 import router from '../routes';
-import {mapActions, mapGetters} from 'vuex';
+import {mapActions, mapGetters, mapMutations} from 'vuex';
 
 export default {
   name: "home",
@@ -228,34 +228,27 @@ export default {
         nama:''
       },
       filter: false,
-      cacheKey: 'token',
-      userKey: 'name',
-      userName: '',
-      roleKey: 'role',
-      role: '',
     };
   },
   methods: {
     ...mapActions(['cartNull']),
+    ...mapMutations(['delAuth']),
     sortedProduct(){
       axios
       .get(process.env.VUE_APP_SEARCH + `/?nama=${this.sorted.nama}&kategori=${this.sorted.kategori}&terbaru=${this.sorted.terbaru}&harga=${this.sorted.harga}`,{
         headers: {
-          authtoken: localStorage.getItem(this.cacheKey)
+          authtoken: this.getAuth.token
         }
       })
       .then((res) => {
         if(res.data.result.name === 'TokenExpiredError'){
+          this.delAuth();
           alert('Token Expired! Silahkan Login Lagi');
           router.push({ path: '/login' });
         }else
         if(res.data.result[0].msg === 'Login dulu!'){
           alert('Login Dulu!');
           router.push({ path: '/login' });
-        }else
-        if(res.data.result[0].msg === 'Not Found'){
-          alert('404 | Not Found');
-          router.push('404');
         }else{
           this.datas = null;
           this.datas = res.data.result;
@@ -269,7 +262,7 @@ export default {
       axios
       .get(process.env.VUE_APP_SEARCH + `/${this.srcName.nama}`, {
         headers: {
-          authtoken: localStorage.getItem(this.cacheKey)
+          authtoken: this.getAuth.token
         }
       })
       .then((res) => {
@@ -300,7 +293,7 @@ export default {
       
       axios.post(process.env.VUE_APP_HISTORY, this.checkout, {
         headers: {
-          authtoken: localStorage.getItem(this.cacheKey)
+          authtoken: this.getAuth.token
         }
       })
       .then(() => {
@@ -329,14 +322,11 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['allCart', 'calculate', 'quantity']),
+    ...mapGetters(['allCart', 'calculate', 'quantity', 'getAuth']),
   },
   mounted() {
     this.sortedProduct()
     this.searchName()
-    this.userName = localStorage.getItem(this.userKey)
-    this.role = localStorage.getItem(this.roleKey)
-    // console.log(this.role)
   },
 };
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="role == 'admin'" class="row">
+  <div v-if="getAuth.role == 'admin'" class="row">
     <header
       class="col sticky-top bg-white d-flex justify-content-between py-4 shadow"
     >
@@ -311,6 +311,7 @@ import Navbar from "../components/navbar.vue";
 import axios from "axios";
 import router from '../routes';
 import FormData from 'form-data';
+import {mapGetters, mapMutations} from 'vuex';
 
 export default {
   name: "products",
@@ -339,20 +340,19 @@ export default {
         id:null,
         tipe:null,
       },
-      cacheKey: 'token',
-      roleKey: 'role',
-      role: '',
     }
   },
   methods:{
+    ...mapMutations(['delAuth']),
     loadProducts(){
       axios.get(process.env.VUE_APP_PRODUCT, {
         headers: {
-          authtoken: localStorage.getItem(this.cacheKey)
+          authtoken: this.getAuth.token
         }
       })
       .then((res) => {
         if(res.data.result.name === 'TokenExpiredError'){
+          this.delAuth();
           alert('Token Expired! Silahkan Login Lagi');
           router.push({ path: '/login' });
         }else
@@ -361,8 +361,8 @@ export default {
           router.push({ path: '/login' });
         }else
         if(res.data.result[0].msg === 'Not Found'){
-          alert('404 | Not Found');
-          router.push('404');
+          // alert('404 | Not Found');
+          router.push('home');
         }else{
           this.products = res.data.result;
         }
@@ -393,7 +393,7 @@ export default {
 
       axios.post(process.env.VUE_APP_PRODUCT, formData, {
         headers: {
-          authtoken: localStorage.getItem(this.cacheKey),
+          authtoken: this.getAuth.token,
           "Content-Type": "multipart/form-data"
         }
       })
@@ -441,7 +441,7 @@ export default {
       
       axios.put(process.env.VUE_APP_PRODUCT, formData, {
         headers: {
-          authtoken: localStorage.getItem(this.cacheKey),
+          authtoken: this.getAuth.token,
           "Content-Type": "multipart/form-data"
         }
       })
@@ -457,7 +457,7 @@ export default {
     delProduct(value){
       axios.delete(process.env.VUE_APP_PRODUCT + `/${value.id}`, {
         headers: {
-          authtoken: localStorage.getItem(this.cacheKey)
+          authtoken: this.getAuth.token
         }
       })
       .then(() => {
@@ -473,7 +473,7 @@ export default {
     loadCategories(){
       axios.get(process.env.VUE_APP_CATEGORY, {
         headers: {
-          authtoken: localStorage.getItem(this.cacheKey)
+          authtoken: this.getAuth.token
         }
       })
       .then((res) => {
@@ -487,7 +487,7 @@ export default {
     addCategory(value){
       axios.post(process.env.VUE_APP_CATEGORY, value, {
         headers: {
-          authtoken: localStorage.getItem(this.cacheKey)
+          authtoken: this.getAuth.token
         }
       })
       .then(() => {
@@ -507,7 +507,7 @@ export default {
     updateCategory(value){
       axios.put(process.env.VUE_APP_CATEGORY, value, {
         headers: {
-          authtoken: localStorage.getItem(this.cacheKey)
+          authtoken: this.getAuth.token
         }
       })
       .then(() => {
@@ -522,7 +522,7 @@ export default {
     delCategory(value){
       axios.delete(process.env.VUE_APP_CATEGORY + `/${value.id}`, {
         headers: {
-          authtoken: localStorage.getItem(this.cacheKey)
+          authtoken: this.getAuth.token
         }
       })
       .then(() => {
@@ -535,10 +535,12 @@ export default {
       });
     },
   },
+  computed: {
+    ...mapGetters(['getAuth']),
+  },
   mounted(){
     this.loadCategories()
     this.loadProducts()
-    this.role = localStorage.getItem(this.roleKey)
   }
 };
 </script>

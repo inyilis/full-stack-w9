@@ -76,7 +76,7 @@
                     </div>
                   </div>
                 </div>                
-                <button type="button" class="col btn btn-info" @click="login(formLogin) & cartNull()">Login</button>
+                <button type="button" class="col btn btn-info" @click="cartNull() & login(formLogin)">Login</button>
               </div>
             </form>
           </div>
@@ -88,7 +88,7 @@
 
 <script>
 import axios from "axios";
-import router from '../routes';
+// import router from '../routes';
 import {mapActions} from 'vuex';
 
 export default {
@@ -105,41 +105,20 @@ export default {
         pswd: null,
         role: 'user',
       },
-      cacheKey: 'token',
-      roleKey: 'role',
-      userKey: 'name',
     }
   },
   methods:{
-    ...mapActions(['cartNull']),
-    login(value){
-      axios.post(process.env.VUE_APP_AUTH, value)
-      .then((res) => {
-        if(res.data.result[0].msg === 'Email belum terdaftar'){
-          alert('Email belum terdaftar');
-        }
-        if(res.data.result[0].msg === 'Anda gagal Login, password salah'){
-          alert('Anda gagal Login, password salah');
-        }
-        if(res.data.result[0].msg === 'Token Created'){
-          localStorage.setItem(this.cacheKey, res.data.result[0].token);
-          localStorage.setItem(this.roleKey, res.data.result[0].role);
-          localStorage.setItem(this.userKey, res.data.result[0].name);
-          router.push('/home');
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    },
+    ...mapActions(['cartNull', 'login']),
     register(value){
+      const emailRegex = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/;
+
       if(value.name === '' || value.name === null){
         return alert('Isi namanya!')
       }
       if(value.email === '' || value.email === null){
         return alert('Isi emailnya!')
       }
-      if(!this.emailValid(value.email)){
+      if(!emailRegex.test(value.email)){
         return alert('Format email salah!')
       }
       if(value.pswd === '' || value.pswd === null){
@@ -162,10 +141,6 @@ export default {
         console.log(err);
       });
     },
-    emailValid(email) {
-      const emailRegex = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/;
-      return emailRegex.test(email);
-    }
   },
 };
 </script>s
